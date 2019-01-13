@@ -1,0 +1,45 @@
+pkgname=mutter-dev
+pkgver=3.31.4
+pkgrel=5
+pkgdesc="A window manager for GNOME."
+url="https://gitlab.gnome.org/GNOME/mutter"
+arch=(x86_64)
+license=(GPL)
+depends=(dconf gobject-introspection-runtime gsettings-desktop-schemas libcanberra
+         startup-notification zenity libsm gnome-desktop upower libxkbcommon-x11
+         gnome-settings-daemon libgudev libinput pipewire)
+makedepends=(intltool gobject-introspection git egl-wayland)
+provides=(mutter)
+conflicts=(mutter)
+groups=(gnome)
+source=("git+https://gitlab.gnome.org/GNOME/mutter.git#tag=$pkgver")
+sha256sums=('SKIP')
+
+prepare() {
+  cd mutter
+
+  git remote add vanvugt https://gitlab.gnome.org/vanvugt/mutter.git || true
+  git fetch vanvugt
+
+#  git cherry-pick cd280c30
+
+  git cherry-pick 1a84fd3d 
+  git cherry-pick ac79e1b8
+
+  git cherry-pick f9fb0e80
+  git cherry-pick 8f9439e5
+
+
+  git cherry-pick 90507303
+
+  git cherry-pick b1493354
+}
+
+build() {
+  arch-meson mutter build -D gtk_doc=true
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}
